@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Lab: Eigenvalues and Eigenvectors</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --secondary: #3b82f6;
+            --accent: #ef4444;
+            --success: #10b981;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --code-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), #0f172a);
+            color: white;
+            padding: 1.25rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .pcce-logo-img {
+            width: 50px;
+            height: 50px;
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .header-titles h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header-titles p {
+            font-size: 0.85rem;
+            color: #e2e8f0;
+        }
+
+        .wrapper {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            gap: 1.5rem;
+            padding: 0 1rem;
+            flex: 1;
+        }
+
+        .sidebar {
+            flex: 0 0 240px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .nav-item {
+            padding: 0.85rem 1.25rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .nav-item:hover {
+            background: #f8fafc;
+            color: var(--secondary);
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: var(--secondary);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .main-content {
+            flex: 1;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: #e2e8f0;
+            margin-left: 1rem;
+        }
+
+        .math-block {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            font-weight: 600;
+        }
+
+        .property-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .property-list li {
+            margin-bottom: 0.75rem;
+            padding-left: 1.75rem;
+            position: relative;
+        }
+
+        .property-list li i {
+            position: absolute;
+            left: 0;
+            top: 5px;
+            color: var(--secondary);
+        }
+
+        /* Simulator Styles */
+        .simulator-container {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        select, button, input {
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.1s, background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:active { transform: scale(0.98); }
+        button:hover { background: #2563eb; }
+        button.secondary { background: #64748b; }
+
+        .matrix-grid {
+            display: inline-grid;
+            gap: 8px;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin: 1rem 0;
+        }
+
+        .matrix-grid input {
+            width: 70px;
+            height: 45px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        .results-panel {
+            margin-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 1.5rem;
+        }
+
+        .step-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        .math-text {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        .verification-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .v-item {
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .v-success { background: #ecfdf5; border: 1px solid #10b981; color: #065f46; }
+
+        /* Quiz UI */
+        .quiz-item {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .options-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .option-label:hover { background: #f1f5f9; }
+
+        .feedback {
+            font-weight: 700;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        footer {
+            background: #f1f5f9;
+            text-align: center;
+            padding: 2rem;
+            margin-top: auto;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .wrapper { flex-direction: column; }
+            .sidebar { flex: none; width: 100%; position: static; }
+            .verification-box { grid-template-columns: 1fr; }
+        }
+
+        /* Feedback Page Styling */
+        .feedback-form-container {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-section">
+                <img src="https://raw.githubusercontent.com/dineshkute90/virtual_lab_LAUC/main/pccoe.png" alt="PCCoE Logo" class="pcce-logo-img">
+                <div class="header-titles">
+                    <h1>APPLIED SCIENCES AND HUMANITIES</h1>
+                    <p>Pimpri Chinchwad College of Engineering, Pune</p>
+                </div>
+            </div>
+            <div style="font-size: 1.2rem; font-weight: 800; color: #60a5fa; letter-spacing: 1px;">VIRTUAL LABS</div>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="nav-item active" onclick="openTab(event, 'aim')"><i class="fas fa-bullseye"></i> Aim</div>
+            <div class="nav-item" onclick="openTab(event, 'theory')"><i class="fas fa-book"></i> Theory</div>
+            <div class="nav-item" onclick="openTab(event, 'procedure')"><i class="fas fa-list-ol"></i> Procedure</div>
+            <div class="nav-item" onclick="openTab(event, 'simulation')"><i class="fas fa-microscope"></i> Simulation</div>
+            <div class="nav-item" onclick="openTab(event, 'application')"><i class="fas fa-rocket"></i> Application</div>
+            <div class="nav-item" onclick="openTab(event, 'practice')"><i class="fas fa-tasks"></i> Practice</div>
+            <div class="nav-item" onclick="openTab(event, 'reference')"><i class="fas fa-graduation-cap"></i> Reference</div>
+            <div class="nav-item" onclick="openTab(event, 'feedback')"><i class="fas fa-comment-dots"></i> Feedback</div>      
+            <div class="nav-item" onclick="openTab(event, 'about')"><i class="fas fa-info-circle"></i> About Us</div>
+        </nav>
+
+        <main class="main-content">
+            <!-- AIM -->
+            <div id="aim" class="tab-content active">
+                <h2>Aim</h2>
+                <p>The primary goal of this experiment is to compute and visualize the <strong>Eigen-structure</strong> (Eigenvalues and Eigenvectors) of a square matrix and verify fundamental algebraic properties.</p>
+                
+                <h3 style="margin-top: 1.5rem;">Learning Objectives:</h3>
+                <ul class="property-list">
+                    <li><i class="fas fa-check-circle"></i> Understand the geometric meaning of Eigen-transformations.</li>
+                    <li><i class="fas fa-check-circle"></i> Master the derivation of the <strong>Characteristic Equation</strong>.</li>
+                    <li><i class="fas fa-check-circle"></i> Learn the numerical method to find basis vectors for eigenspaces.</li>
+                    <li><i class="fas fa-check-circle"></i> Verify properties relating Trace/Determinant to Eigenvalues.</li>
+                </ul>
+            </div>
+
+            <!-- THEORY -->
+            <div id="theory" class="tab-content">
+                <h2>Theory</h2>
+                <p>For a square matrix A, a scalar value lambda is an <strong>eigenvalue</strong> if there exists a non-zero vector x, known as the <strong>eigenvector</strong>, such that:</p>
+                <div class="math-block">A times x = lambda times x</div>
+                <p>This equation indicates that the transformation A acts on vector x simply by scaling its magnitude by a factor of lambda without changing its direction.</p>
+
+                <h3>The Characteristic Equation</h3>
+                <p>Rearranging the equation to (A minus lambda times I) times x = 0, where I is the identity matrix. For a non-trivial solution (where vector x is not zero), the matrix (A minus lambda times I) must be non-invertible:</p>
+                <div class="math-block">Determinant of (A - lambda times I) = 0</div>
+                
+                <h3>Key Properties</h3>
+                <ul class="property-list">
+                    <li><i class="fas fa-info-circle"></i> <strong>Sum Property:</strong> The sum of all eigenvalues equals the Trace of the matrix.</li>
+                    <li><i class="fas fa-info-circle"></i> <strong>Product Property:</strong> The product of all eigenvalues equals the Determinant of the matrix.</li>
+                    <li><i class="fas fa-info-circle"></i> <strong>Independence:</strong> Eigenvectors corresponding to distinct eigenvalues are linearly independent of one another.</li>
+                </ul>
+            </div>
+            
+            <!-- PROCEDURE -->
+            <div id="procedure" class="tab-content">
+                <h2>Detailed Procedure</h2>
+                <p>The following methodology is used to determine the eigen-structure of a given square matrix A.</p>
+                
+                <div class="quiz-item">
+                    <p><strong>Step 1: Form the Characteristic Matrix</strong></p>
+                    <p>Define the matrix A and identify the Identity matrix I of the same dimension. Construct the characteristic matrix by subtracting the variable lambda from the main diagonal elements of matrix A.</p>
+                    <div style="font-style: italic; color: #64748b; margin-top: 5px;">
+                        Equation: Characteristic Matrix = A - (lambda times I)
+                    </div>
+                </div>
+                
+                <div class="quiz-item">
+                    <p><strong>Step 2: Obtain the Characteristic Polynomial</strong></p>
+                    <p>Calculate the determinant of the characteristic matrix found in Step 1. Equating this determinant to zero provides the characteristic equation.</p>
+                    <div style="font-style: italic; color: #64748b; margin-top: 5px;">
+                        General Form for 2 by 2: lambda squared - (Trace of A) times lambda + (Determinant of A) = 0
+                    </div>
+                </div>
+
+                <div class="quiz-item">
+                    <p><strong>Step 3: Calculate Eigenvalues</strong></p>
+                    <p>Solve the polynomial equation for lambda. The number of solutions will match the dimension of the matrix. These solutions represent the scalar factors of the transformation.</p>
+                </div>
+
+                <div class="quiz-item">
+                    <p><strong>Step 4: Solve for Eigenvectors</strong></p>
+                    <p>For each unique eigenvalue, substitute its value into the system of homogeneous equations. Use row reduction or Gaussian elimination to find the non-zero solutions for the vector components.</p>
+                    <div style="font-style: italic; color: #64748b; margin-top: 5px;">
+                        Equation System: (A - eigenvalue times I) times [vector components] = [zero vector]
+                    </div>
+                </div>
+
+                <div class="quiz-item">
+                    <p><strong>Step 5: Verification of Results</strong></p>
+                    <p>Confirm the accuracy by checking that the sum of the derived eigenvalues matches the trace of the original matrix, and their product equals the matrix determinant.</p>
+                </div>
+            </div>
+
+            <!-- SIMULATION -->
+            <div id="simulation" class="tab-content">
+                <h2>Interactive Simulator</h2>
+                <p>Enter matrix values to see the step-by-step breakdown of Eigen-calculations.</p>
+                
+                <div class="simulator-container">
+                    <div class="controls">
+                        <div>
+                            <label style="font-weight: 700;">Matrix Type:</label>
+                            <select id="matrixSize" onchange="generateMatrixInputs()">
+                                <option value="2">2 x 2 Matrix</option>
+                                <option value="3">3 x 3 Matrix</option>
+                                <option value="4">4 x 4 Matrix</option>
+                            </select>
+                        </div>
+                        <button onclick="randomizeMatrix()" class="secondary"><i class="fas fa-random"></i> Randomize</button>
+                        <button onclick="computeEigen()"><i class="fas fa-calculator"></i> Compute Eigen-structure</button>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <div id="matrixInputs" class="matrix-grid"></div>
+                    </div>
+
+                    <div id="simResults" class="results-panel" style="display: none;">
+                        <h3 style="margin: 0 0 1rem 0;">Analysis Report</h3>
+                        <div id="stepContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APPLICATION -->
+            <div id="application" class="tab-content">
+                <h2>Real-world Applications</h2>
+                <div class="verification-box">
+                    <div class="step-card" style="border-left-color: #8b5cf6;">
+                        <div class="step-title" style="color: #8b5cf6;"><i class="fas fa-braille"></i> Data Science</div>
+                        <p><strong>PCA:</strong> Principal Component Analysis uses eigenvectors of a covariance matrix to identify patterns in high-dimensional data.</p>
+                    </div>
+                    <div class="step-card" style="border-left-color: #f59e0b;">
+                        <div class="step-title" style="color: #f59e0b;"><i class="fas fa-network-wired"></i> Web Ranking</div>
+                        <p><strong>Google PageRank:</strong> The importance of a webpage is calculated as the dominant eigenvector of a link matrix.</p>
+                    </div>
+                </div>
+                <div class="step-card" style="margin-top: 1rem;">
+                    <div class="step-title">Structural Engineering</div>
+                    <p>Bridges and skyscrapers have "natural frequencies" which are the eigenvalues of their mass and stiffness matrices. Engineers ensure wind forces don't match these values to prevent collapse.</p>
+                </div>
+            </div>
+
+            <!-- PRACTICE -->
+            <div id="practice" class="tab-content">
+                <h2>Practice Quiz</h2>
+                <div id="quizContainer">
+                    <div class="quiz-item" data-answer="b">
+                        <p><strong>1. If a 2x2 matrix has eigenvalues 2 and 3, what is its Trace?</strong></p>
+                        <div class="options-group">
+                            <label class="option-label"><input type="radio" name="q1" value="a"> 6</label>
+                            <label class="option-label"><input type="radio" name="q1" value="b"> 5</label>
+                            <label class="option-label"><input type="radio" name="q1" value="c"> 1</label>
+                        </div>
+                        <button onclick="verifyQuiz(this)">Check Answer</button>
+                    </div>
+                    
+                    <div class="quiz-item" data-answer="c">
+                        <p><strong>2. What is the eigenvalue of an Identity matrix of size $n \times n$?</strong></p>
+                        <div class="options-group">
+                            <label class="option-label"><input type="radio" name="q2" value="a"> 0</label>
+                            <label class="option-label"><input type="radio" name="q2" value="b"> n</label>
+                            <label class="option-label"><input type="radio" name="q2" value="c"> 1 (repeated n times)</label>
+                        </div>
+                        <button onclick="verifyQuiz(this)">Check Answer</button>
+                    </div>
+                </div>
+            </div>
+            <!-- REFERENCE -->
+            <div id="reference" class="tab-content">
+                <h2>Reference and Resources</h2>
+                <p>Deepen your understanding of Linear Algebra with these curated resources.</p>
+                
+                <div class="quiz-item">
+                    <p><strong>Textbooks:</strong></p>
+                    <ul class="property-list">
+                        <li><i class="fas fa-book"></i> "Introduction to Linear Algebra" by Gilbert Strang (5th Edition).</li>
+                        <li><i class="fas fa-book"></i> "Linear Algebra and its Applications" by David C. Lay.</li>
+                    </ul>
+                </div>
+
+                <div class="quiz-item">
+                    <p><strong>Online Courses:</strong></p>
+                    <ul class="property-list">
+                        <li><i class="fas fa-video"></i> MIT OpenCourseWare - Linear Algebra (18.06).</li>
+                        <li><i class="fas fa-video"></i> Khan Academy - Linear Algebra Series.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ABOUT -->
+            <div id="about" class="tab-content">
+                <h2>About Us</h2>
+                <p>The <strong>Virtual Lab Initiative</strong> at PCCoE is dedicated to making complex mathematical and engineering concepts accessible through interactive technology.</p>
+                <div class="step-card" style="text-align: center; background: #f1f5f9;">
+                    <img src="https://raw.githubusercontent.com/dineshkute90/virtual_lab_LAUC/main/pccoe.png" alt="PCCoE" style="width: 120px; margin-bottom: 1rem;">
+                    <h3>Department of Applied Sciences</h3>
+                    <p>Pimpri Chinchwad College of Engineering<br>Sector No. 26, Pradhikaran, Nigdi, Pune, Maharashtra 411044</p>
+                </div>
+            </div>
+
+
+            <!-- NEW FEEDBACK TAB CONTENT -->
+            <div id="feedback" class="tab-content">
+                <div class="section-header"><i class="fas fa-comment-dots"></i><h2>User Feedback</h2></div>
+                <div class="feedback-form-container">
+                    <p style="margin-bottom: 1.5rem; color: var(--text-muted);">We value your input! Let us know how we can improve this virtual lab.</p>
+                    <div class="form-group">
+                        <label for="user-name">Full Name</label>
+                        <input type="text" id="user-name" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback-category">Feedback Category</label>
+                        <select id="feedback-category">
+                            <option value="suggestion">Suggestion</option>
+                            <option value="bug">Bug Report</option>
+                            <option value="content">Content Accuracy</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-message">Message</label>
+                        <textarea id="user-message" rows="5" placeholder="Write your feedback here..."></textarea>
+                    </div>
+                    <button onclick="submitPageFeedback()" style="width: 100%; justify-content: center; padding: 1rem;">
+                        <i class="fas fa-paper-plane"></i> Submit Feedback
+                    </button>
+                    <div id="submission-status" style="margin-top: 1rem; text-align: center;"></div>
+                </div>
+            </div>
+
+            <div id="about" class="tab-content">
+                <div class="section-header"><i class="fas fa-info-circle"></i><h2>About Us</h2></div>
+                <p>Virtual Lab Initiative by PCCoE Applied Sciences Department.</p>
+            </div>
+        </main>
+    </div>
+
+
+    <footer>
+        <p>&copy; 2025 Pimpri Chinchwad College of Engineering | Virtual Lab Project</p>
+        <p style="font-size: 0.75rem; margin-top: 5px;">Designed for Educational Purposes in Linear Algebra & Calculus</p>
+    </footer>
+
+    <script>
+        const quizData = [
+            {
+                q: "1. Find the eigenvalues of the matrix A = [[4, 1], [2, 3]].",
+                options: ["λ₁ = 2, λ₂ = 5", "λ₁ = 4, λ₂ = 3", "λ₁ = 1, λ₂ = 6", "λ₁ = 2, λ₂ = 2"],
+                correct: 0,
+                hint: "Start by finding the characteristic equation |A - λI| = 0.",
+                rationale: "The characteristic equation is λ² - 7λ + 10 = 0, which factors into (λ - 2)(λ - 5) = 0."
+            },
+            {
+                q: "2. For a 3x3 matrix B, the sum of diagonal elements is 12 and the determinant is 30. If two eigenvalues are 2 and 3, what is the third eigenvalue?",
+                options: ["5", "7", "10", "6"],
+                correct: 1,
+                hint: "Recall that the sum of eigenvalues equals the Trace of the matrix.",
+                rationale: "Using the Trace property: 2 + 3 + λ₃ = 12, so 5 + λ₃ = 12, which gives λ₃ = 7."
+            },
+            {
+                q: "3. What is the characteristic equation for the matrix C = [[1, 2], [0, 4]]?",
+                options: ["λ² - 5λ + 4 = 0", "λ² - 4λ + 5 = 0", "λ² + 5λ - 4 = 0", "λ² - 1λ - 4 = 0"],
+                correct: 0,
+                hint: "The formula for a 2x2 characteristic equation is λ² - Tr(A)λ + det(A) = 0.",
+                rationale: "The trace is 1+4=5 and the determinant is (1*4) - (2*0) = 4, leading to λ² - 5λ + 4 = 0."
+            },
+            {
+                q: "4. Find the eigenvalue of the matrix D = [[5, 0, 0], [0, 5, 0], [0, 0, 5]].",
+                options: ["λ = 5 (triple root)", "λ = 0, 5, 10", "λ = 15", "λ = 125"],
+                correct: 0,
+                hint: "Look at the diagonal elements of this scalar matrix.",
+                rationale: "For a diagonal matrix, the eigenvalues are simply the elements on the main diagonal."
+            },
+            {
+                q: "5. If λ = 3 is an eigenvalue of A, what is an eigenvalue of A²?",
+                options: ["3", "6", "9", "1"],
+                correct: 2,
+                hint: "Consider the property Aⁿ v = λⁿ v.",
+                rationale: "According to the property of matrix powers, if Av = λv, then A²v = λ²v, so 3² = 9."
+            },
+            {
+                q: "6. Which of the following is an eigenvalue of the singular matrix E = [[1, 2], [2, 4]]?",
+                options: ["0", "1", "2", "4"],
+                correct: 0,
+                hint: "Recall the relationship between the determinant and the product of eigenvalues.",
+                rationale: "A matrix is singular if and only if at least one of its eigenvalues is zero."
+            },
+            {
+                q: "7. Determine the eigenvalues of F = [[1, 6], [5, 2]].",
+                options: ["7 and -4", "1 and 2", "-7 and 4", "6 and 5"],
+                correct: 0,
+                hint: "Set up the quadratic equation λ² - 3λ - 28 = 0.",
+                rationale: "Trace is 3 and Determinant is 2 - 30 = -28. Solving λ² - 3λ - 28 = 0 gives (λ - 7)(λ + 4) = 0."
+            },
+            {
+                q: "8. If a 4x4 matrix has eigenvalues 1, 2, 3, and 4, what is the determinant of the matrix?",
+                options: ["10", "24", "1", "0"],
+                correct: 1,
+                hint: "The product of all eigenvalues of a matrix is equal to its determinant.",
+                rationale: "The determinant is the product of all eigenvalues: 1 * 2 * 3 * 4 = 24."
+            },
+            {
+                q: "9. Find the trace of the matrix whose eigenvalues are -1, 0, and 5.",
+                options: ["4", "0", "-5", "6"],
+                correct: 0,
+                hint: "Sum all the given eigenvalues to find the trace.",
+                rationale: "The trace is the sum of the eigenvalues: (-1) + 0 + 5 = 4."
+            },
+            {
+                q: "10. Given G = [[3, -2], [4, -1]], what are the eigenvalues?",
+                options: ["1 ± 2i", "1 ± i", "3 and -1", "2 and 2"],
+                correct: 0,
+                hint: "Use the quadratic formula and expect a negative discriminant.",
+                rationale: "Trace is 2, Det is 5. Equation: λ² - 2λ + 5 = 0. Roots are (2 ± √(4 - 20))/2 = 1 ± 2i."
+            }
+        ];
+
+        function openTab(evt, tabName) {
+            document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+            document.querySelectorAll(".nav-item").forEach(t => t.classList.remove("active"));
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        function generateMatrixInputs() {
+            const n = parseInt(document.getElementById('matrixSize').value);
+            const container = document.getElementById('matrixInputs');
+            container.innerHTML = '';
+            container.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = `cell-${i}-${j}`;
+                    input.value = (i === j) ? Math.floor(Math.random() * 5 + 1) : Math.floor(Math.random() * 3);
+                    container.appendChild(input);
+                }
+            }
+            document.getElementById('simResults').style.display = 'none';
+        }
+
+        function randomizeMatrix() { generateMatrixInputs(); }
+
+        function loadQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = quizData.map((q, idx) => `
+                <div class="quiz-item" id="q-${idx}">
+                    <p><strong>${q.q}</strong></p>
+                    <button class="hint-btn" onclick="toggleHint(${idx})">Need a hint?</button>
+                    <div id="hint-${idx}" style="display:none; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;"><em>Hint: ${q.hint}</em></div>
+                    <div class="options-group">
+                        ${q.options.map((opt, oIdx) => `
+                            <label class="option-label">
+                                <input type="radio" name="q${idx}" value="${oIdx}"> ${opt}
+                            </label>
+                        `).join('')}
+                    </div>
+                    <button onclick="checkQuizAnswer(${idx})">Verify Answer</button>
+                    <div id="feedback-${idx}"></div>
+                </div>
+            `).join('');
+        }
+
+        window.toggleHint = (idx) => {
+            const el = document.getElementById(`hint-${idx}`);
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        };
+
+        window.checkQuizAnswer = (idx) => {
+            const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+            if(!selected) return;
+            const feedbackEl = document.getElementById(`feedback-${idx}`);
+            const isCorrect = parseInt(selected.value) === quizData[idx].correct;
+            feedbackEl.innerHTML = `
+                <div class="feedback" style="background: ${isCorrect ? '#ecfdf5' : '#fef2f2'}; border: 1px solid ${isCorrect ? '#10b981' : '#f87171'}">
+                    <span class="feedback-title" style="color: ${isCorrect ? '#065f46' : '#991b1b'}">${isCorrect ? 'Correct' : 'Incorrect'}</span>
+                    <p style="color: ${isCorrect ? '#065f46' : '#991b1b'}">${quizData[idx].rationale}</p>
+                </div>
+            `;
+        };
+
+        function computeEigen() {
+            const n = parseInt(document.getElementById('matrixSize').value);
+            const A = [];
+            for (let i = 0; i < n; i++) {
+                A[i] = [];
+                for (let j = 0; j < n; j++) {
+                    A[i][j] = parseFloat(document.getElementById(`cell-${i}-${j}`).value) || 0;
+                }
+            }
+            const results = document.getElementById('simResults');
+            const stepBox = document.getElementById('stepContainer');
+            results.style.display = 'block';
+            stepBox.innerHTML = '';
+            let trace = 0;
+            for(let i=0; i<n; i++) trace += A[i][i];
+
+            if (n === 2) {
+                const det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+                stepBox.innerHTML += createStep("Characteristic Equation", `λ² - (${trace.toFixed(2)})λ + (${det.toFixed(2)}) = 0`);
+                const disc = trace * trace - 4 * det;
+                if (disc < 0) {
+                    stepBox.innerHTML += createStep("Eigenvalues", "Complex Roots: " + (trace/2).toFixed(2) + " ± " + (Math.sqrt(-disc)/2).toFixed(2) + "i");
+                } else {
+                    const l1 = (trace + Math.sqrt(disc)) / 2;
+                    const l2 = (trace - Math.sqrt(disc)) / 2;
+                    stepBox.innerHTML += createStep("Eigenvalues", `λ₁ = ${l1.toFixed(2)}, λ₂ = ${l2.toFixed(2)}`);
+                }
+            } else {
+                stepBox.innerHTML += createStep("Numerical Method", "Computing via Power Iteration...");
+                let b_k = new Array(n).fill(1);
+                let lambda = 0;
+                for(let i=0; i<20; i++) {
+                    let next = new Array(n).fill(0);
+                    for(let row=0; row<n; row++) 
+                        for(let col=0; col<n; col++) next[row] += A[row][col] * b_k[col];
+                    let max = Math.max(...next.map(Math.abs));
+                    lambda = max;
+                    b_k = next.map(v => v / max);
+                }
+                stepBox.innerHTML += createStep("Result", `Dominant λ ≈ ${lambda.toFixed(3)}<br>Vector ≈ [${b_k.map(v=>v.toFixed(2)).join(', ')}]`);
+            }
+        }
+
+        function createStep(title, content) {
+            return `<div class="step-card"><div class="step-title">${title}</div><div>${content}</div></div>`;
+        }
+
+        window.onload = () => {
+            generateMatrixInputs();
+            loadQuiz();
+        };
+    </script>
+</body>
+</html>
