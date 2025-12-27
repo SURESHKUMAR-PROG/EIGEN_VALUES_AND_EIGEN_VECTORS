@@ -715,6 +715,11 @@
         }
 
         /* Feedback Form */
+
+            
+
+
+
         .feedback-form {
             display: grid;
             gap: 20px;
@@ -1279,49 +1284,21 @@
                 
                 <p>We value your feedback! Please share your experience with this virtual lab and any suggestions for improvement.</p>
                 
-                <form class="feedback-form" id="feedbackForm">
-                    <div class="form-group">
-                        <label for="userName">Your Name *</label>
-                        <input type="text" id="userName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="userEmail">Email Address *</label>
-                        <input type="email" id="userEmail" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="userRole">Your Role</label>
-                        <select id="userRole">
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher/Educator</option>
-                            <option value="researcher">Researcher</option>
-                            <option value="professional">Professional</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Overall Rating</label>
-                        <div class="star-rating" id="starRating">
-                            <i class="fas fa-star" data-rating="1"></i>
-                            <i class="fas fa-star" data-rating="2"></i>
-                            <i class="fas fa-star" data-rating="3"></i>
-                            <i class="fas fa-star" data-rating="4"></i>
-                            <i class="fas fa-star" data-rating="5"></i>
-                        </div>
-                        <input type="hidden" id="ratingValue" value="0">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="feedbackText">Your Feedback *</label>
-                        <textarea id="feedbackText" rows="6" required placeholder="Please share your thoughts about this virtual lab, any issues you encountered, or suggestions for improvement..."></textarea>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn">
-                        <i class="fas fa-paper-plane"></i> Submit Feedback
-                    </button>
-                </form>
+                        <form
+            action="https://formspree.io/f/mnjqnvwe"
+            method="POST"
+            >
+            <label>
+                Your email:
+                <input type="email" name="email">
+                </label>
+                <label>
+                    Your message:
+                    <textarea name="message"></textarea>
+                    </label>
+                    <!-- your other form fields go here -->
+                    <button type="submit">Send</button>
+                    </form>
                 
                 <div id="feedbackMessage" style="margin-top: 20px; text-align: center;"></div>
             </section>
@@ -1342,7 +1319,7 @@
         
         <footer>
             <p>Eigenvalues & Eigenvectors Virtual Lab | VIRTUAL LABS Initiative</p>
-            <p>© 2023 | Interactive Mathematics Education Tool | All Rights Reserved</p>
+            <p>© 2025 | Interactive Mathematics Education Tool | All Rights Reserved</p>
         </footer>
     </main>
 
