@@ -2405,7 +2405,6 @@
             if (userParts.length !== correctParts.length) return false;
             return userParts.every((val, idx) => numbersEqual(val, correctParts[idx]));
         }
-
         function generateQuestions(matrix) {
             const n = matrix.length;
             const data = computeEigenData(matrix);
@@ -2413,6 +2412,9 @@
             const evArr = data.eigenvalues;
             const trace = data.trace;
             const det = data.det;
+
+            // Bold instruction for user
+            const signInstruction = "<br><br><strong>Write your answer with sign only (e.g., 2 not +2, and -3 for negative).</strong>";
 
             let coeffs = [];
             let coeffHint = "";
@@ -2455,16 +2457,16 @@
             if (n === 2) {
                 questions.push({
                     id: 1,
-                    text: `Step 1: Characteristic Polynomial (2×2)\nEnter the coefficients a, b, c for the polynomial a·λ² + b·λ + c = 0.\nEnter as three numbers separated by commas: a, b, c`,
-                    hint: coeffHint,
+                    text: `Step 1: Characteristic Polynomial (2×2)\nEnter the coefficients a, b, c for the polynomial a·λ² + b·λ + c = 0.\nEnter as three numbers separated by commas: a, b, c${signInstruction}`,
+                    hint: `The characteristic polynomial of a 2×2 matrix [[a,b],[c,d]] is λ² - (a+d)λ + (ad-bc). Compute the trace (a+d) and determinant (ad-bc) from your matrix, then write the coefficients in the form (1, -trace, determinant).`,
                     correctAnswer: `${coeffs[0]}, ${coeffs[1]}, ${coeffs[2]}`,
                     compareNumbers: true
                 });
             } else {
                 questions.push({
                     id: 1,
-                    text: `Step 1: Characteristic Polynomial (3×3)\nEnter the coefficients a, b, c, d for the polynomial a·λ³ + b·λ² + c·λ + d = 0.\nEnter as four numbers separated by commas: a, b, c, d`,
-                    hint: coeffHint,
+                    text: `Step 1: Characteristic Polynomial (3×3)\nEnter the coefficients a, b, c, d for the polynomial a·λ³ + b·λ² + c·λ + d = 0.\nEnter as four numbers separated by commas: a, b, c, d${signInstruction}`,
+                    hint: `The characteristic polynomial of a 3×3 matrix is -λ³ + (trace)λ² - (sum of principal minors)λ + det. Compute trace, sum of principal minors, and determinant from your matrix, then arrange coefficients accordingly.`,
                     correctAnswer: `${coeffs[0]}, ${coeffs[1]}, ${coeffs[2]}, ${coeffs[3]}`,
                     compareNumbers: true
                 });
@@ -2472,26 +2474,24 @@
 
             questions.push({
                 id: 2,
-                text: `Step 2: Eigenvalues\nWhat are the eigenvalues? (Separate multiple values with commas, e.g., "5, 2")`,
-                hint: `The eigenvalues are the roots of the characteristic polynomial. For this matrix, they are: ${eigStr}`,
+                text: `Step 2: Eigenvalues\nWhat are the eigenvalues? (Separate multiple values with commas, e.g., "5, 2")${signInstruction}`,
+                hint: `The eigenvalues are the roots of the characteristic polynomial. Solve the polynomial you derived in Step 1. For a 2×2, use the quadratic formula; for 3×3, try to factor or use known root theorems. The sum of eigenvalues equals the trace, product equals determinant.`,
                 correctAnswer: eigStr,
-                compareNumbers: true          // <-- changed to true
+                compareNumbers: false
             });
 
             eigenvectorQuestions.forEach((eq, idx) => {
                 questions.push({
                     id: 3 + idx,
-                    text: `Step 3: Eigenvectors\nFor eigenvalue λ = ${eq.lambda}, what is a corresponding eigenvector? (Enter as comma-separated values, e.g., "1, 1")`,
-                    hint: `Solve (A - λI)v = 0. For λ = ${eq.lambda}, one normalized eigenvector is: ${eq.vector}`,
+                    text: `Step 3: Eigenvectors\nFor eigenvalue λ = ${eq.lambda}, what is a corresponding eigenvector? (Enter as comma-separated values, e.g., "1, 1")${signInstruction}`,
+                    hint: `Solve (A - λI)v = 0. Set up the homogeneous linear system and find a non-zero solution. You can express one variable in terms of the others. Normalization is not required; any scalar multiple is acceptable.`,
                     correctAnswer: eq.vector,
                     compareNumbers: true
                 });
             });
 
-
             return questions;
         }
-
         function startQuestioning() {
             const matrix = readMatrixFromUI();
             const questions = generateQuestions(matrix);
@@ -2510,23 +2510,37 @@
         function displayCurrentQuestion() {
             const q = currentQuestions[currentQuestionIndex];
             const savedAnswer = userAnswers[currentQuestionIndex] || '';
-            const feedback = userAnswers[currentQuestionIndex + '_feedback'] || '';
+            const checkFeedback = userAnswers[currentQuestionIndex + '_feedback'] || ''; // "Correct" or "Incorrect"
             const isCorrect = userAnswers[currentQuestionIndex + '_correct'] || false;
+
             let html = `
-                <div class="question-title">Question ${currentQuestionIndex + 1} of ${currentQuestions.length}</div>
-                <p style="white-space: pre-line;">${q.text}</p>
-                <input type="text" id="answerInput" class="answer-input" placeholder="Type your answer here..." value="${escapeHtml(savedAnswer)}">
-                <button id="checkAnswerBtn" class="calc-btn" style="margin-top:10px; padding:10px 20px;"><i class="fas fa-check"></i> Check Answer</button>
-                <div id="questionFeedback" class="feedback-msg ${isCorrect ? 'feedback-correct' : (feedback ? 'feedback-wrong' : '')}" style="display: ${feedback ? 'block' : 'none'};">${feedback}</div>
-                <div class="hint-box" id="hintBox" style="display: none; margin-top:10px; background:#fef9e6; padding:10px; border-radius:8px;">💡 Hint: ${q.hint}</div>
-                <button id="showHintBtn" class="test-button" style="margin-top:10px;">Show Hint</button>
-            `;
+        <div class="question-title">Question ${currentQuestionIndex + 1} of ${currentQuestions.length}</div>
+        <p style="white-space: pre-line;">${q.text}</p>
+        <input type="text" id="answerInput" class="answer-input" placeholder="Type your answer here..." value="${escapeHtml(savedAnswer)}">
+        <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
+            <button id="checkAnswerBtn" class="calc-btn" style="padding: 8px 20px;"><i class="fas fa-check"></i> Check Answer</button>
+            <button id="showAnswerBtn" class="calc-btn example" style="padding: 8px 20px;"><i class="fas fa-lightbulb"></i> Show Answer</button>
+        </div>
+        <div id="questionFeedback" class="feedback-msg ${isCorrect ? 'feedback-correct' : (checkFeedback ? 'feedback-wrong' : '')}" style="display: ${checkFeedback ? 'block' : 'none'};">${checkFeedback}</div>
+        <div class="hint-box" id="hintBox" style="display: none; margin-top:10px; background:#fef9e6; padding:10px; border-radius:8px;">💡 Hint: ${q.hint}</div>
+        <button id="showHintBtn" class="test-button" style="margin-top:10px;">Show Hint</button>
+        <div id="answerReveal" style="display: none; margin-top: 12px; padding: 8px; background: #e8f0fe; border-radius: 8px; color: #0d47a1;">
+            <strong>Correct Answer:</strong> ${q.correctAnswer}
+        </div>
+    `;
             document.getElementById('questionCard').innerHTML = html;
+
+            // Bind events
             document.getElementById('checkAnswerBtn').addEventListener('click', () => checkAnswer());
+            document.getElementById('showAnswerBtn').addEventListener('click', () => {
+                const revealDiv = document.getElementById('answerReveal');
+                revealDiv.style.display = revealDiv.style.display === 'none' ? 'block' : 'none';
+            });
             document.getElementById('showHintBtn').addEventListener('click', () => {
                 const hintBox = document.getElementById('hintBox');
                 hintBox.style.display = hintBox.style.display === 'none' ? 'block' : 'none';
             });
+
             const prevBtn = document.getElementById('prevQuestionBtn');
             const nextBtn = document.getElementById('nextQuestionBtn');
             prevBtn.disabled = (currentQuestionIndex === 0);
@@ -2537,29 +2551,77 @@
             }
         }
 
+        // Helper: compare two sets of numbers (order doesn't matter, tolerance 1e-6)
+        function compareEigenvalues(userStr, correctStr) {
+            const userParts = userStr.split(',').map(x => parseFloat(x.trim())).filter(v => !isNaN(v));
+            const correctParts = correctStr.split(',').map(x => parseFloat(x.trim())).filter(v => !isNaN(v));
+            if (userParts.length !== correctParts.length) return false;
+            const sortedUser = [...userParts].sort((a, b) => a - b);
+            const sortedCorrect = [...correctParts].sort((a, b) => a - b);
+            return sortedUser.every((val, idx) => Math.abs(val - sortedCorrect[idx]) < 1e-6);
+        }
+
+        // Helper: compare two vectors (allow scalar multiple, tolerance 1e-6)
+        function compareVectors(userStr, correctStr) {
+            const userVec = userStr.split(',').map(x => parseFloat(x.trim())).filter(v => !isNaN(v));
+            const correctVec = correctStr.split(',').map(x => parseFloat(x.trim())).filter(v => !isNaN(v));
+            if (userVec.length !== correctVec.length) return false;
+            // find scaling factor k from first non-zero component
+            let k = null;
+            for (let i = 0; i < correctVec.length; i++) {
+                if (Math.abs(correctVec[i]) > 1e-8) {
+                    k = userVec[i] / correctVec[i];
+                    break;
+                }
+            }
+            if (k === null) {
+                // all correctVec components are zero – user must also have all zeros
+                return userVec.every(v => Math.abs(v) < 1e-8);
+            }
+            // check if userVec ≈ k * correctVec
+            return userVec.every((v, i) => Math.abs(v - k * correctVec[i]) < 1e-6);
+        }
+
+        // Modified checkAnswer that uses appropriate comparison
         function checkAnswer() {
             const q = currentQuestions[currentQuestionIndex];
             const userInput = document.getElementById('answerInput').value.trim();
             let isMatch = false;
-            if (q.compareNumbers) {
-                isMatch = compareNumberArrays(userInput, q.correctAnswer);
+
+            // Determine question type by id/content
+            if (q.id === 2) {
+                // Eigenvalues – order insensitive
+                isMatch = compareEigenvalues(userInput, q.correctAnswer);
+            } else if (q.id >= 3 && q.id <= 5) { // Eigenvector questions
+                isMatch = compareVectors(userInput, q.correctAnswer);
             } else {
-                let normalizedUser = userInput.toLowerCase().replace(/\s/g, '');
-                let normalizedCorrect = q.correctAnswer.toLowerCase().replace(/\s/g, '');
-                isMatch = normalizedUser === normalizedCorrect;
+                // Coefficients or verification (order matters)
+                if (q.compareNumbers) {
+                    const userParts = userInput.split(',').map(x => parseFloat(x.trim()));
+                    const correctParts = q.correctAnswer.split(',').map(x => parseFloat(x.trim()));
+                    if (userParts.length === correctParts.length) {
+                        isMatch = userParts.every((val, idx) => Math.abs(val - correctParts[idx]) < 1e-6);
+                    } else {
+                        isMatch = false;
+                    }
+                } else {
+                    // For eigenvalue string with order? But we already handled id===2. Fallback.
+                    let normalizedUser = userInput.toLowerCase().replace(/\s/g, '');
+                    let normalizedCorrect = q.correctAnswer.toLowerCase().replace(/\s/g, '');
+                    isMatch = normalizedUser === normalizedCorrect;
+                }
             }
+
             if (isMatch) {
                 userAnswers[currentQuestionIndex] = userInput;
                 userAnswers[currentQuestionIndex + '_correct'] = true;
-                userAnswers[currentQuestionIndex + '_feedback'] = "✓ Correct!";
+                userAnswers[currentQuestionIndex + '_feedback'] = "✅ Correct answer!";
             } else {
-                userAnswers[currentQuestionIndex + '_feedback'] = `✗ Incorrect. Expected: ${q.correctAnswer}`;
+                userAnswers[currentQuestionIndex + '_feedback'] = "❌ Incorrect answer.";
                 userAnswers[currentQuestionIndex + '_correct'] = false;
             }
-            displayCurrentQuestion(); // show feedback immediately
-            // Do NOT auto-advance; user must click Next/Finish
+            displayCurrentQuestion(); // refresh to show feedback
         }
-
         function nextQuestion() {
             if (currentQuestionIndex < currentQuestions.length - 1) {
                 currentQuestionIndex++;
