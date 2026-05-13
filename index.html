@@ -1440,6 +1440,42 @@
 
             <!-- Applications Section (original) -->
             <section id="applications" class="content-section">
+                <style>
+                    .app-link {
+                        display: inline-block;
+                        margin-top: 12px;
+                        font-weight: 600;
+                        text-decoration: none;
+                        background: rgba(48, 63, 159, 0.1);
+                        padding: 6px 12px;
+                        border-radius: 20px;
+                        transition: all 0.3s ease;
+                        color: var(--secondary);
+                        font-size: 0.85rem;
+                    }
+
+                    .app-link i {
+                        margin-left: 6px;
+                        font-size: 0.75rem;
+                    }
+
+                    .app-link:hover {
+                        background: var(--secondary);
+                        color: white;
+                        transform: translateX(4px);
+                    }
+
+                    .property-card {
+                        display: flex;
+                        flex-direction: column;
+                        height: 100%;
+                    }
+
+                    .property-card .app-link {
+                        margin-top: auto;
+                        align-self: flex-start;
+                    }
+                </style>
                 <h2 class="section-title"><i class="fas fa-rocket"></i> Real-World Applications</h2>
                 <div class="property-grid">
                     <div class="property-card">
@@ -1447,34 +1483,48 @@
                         </h4>
                         <p>PCA uses eigenvectors of a covariance matrix to identify patterns in high-dimensional data.
                         </p>
+                        <a href="https://en.wikipedia.org/wiki/Principal_component_analysis" target="_blank"
+                            rel="noopener noreferrer" class="app-link">Explore PCA <i
+                                class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="property-card">
                         <h4 class="result-title"><i class="fas fa-search"></i> Google PageRank</h4>
                         <p>The importance of webpages is calculated as the dominant eigenvector of the web link matrix.
                         </p>
+                        <a href="https://en.wikipedia.org/wiki/PageRank" target="_blank" rel="noopener noreferrer"
+                            class="app-link">Explore PageRank <i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="property-card">
                         <h4 class="result-title"><i class="fas fa-bridge"></i> Structural Engineering</h4>
                         <p>Bridges and skyscrapers have "natural frequencies" (eigenvalues) that engineers must account
                             for.</p>
+                        <a href="https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors#Vibration_analysis"
+                            target="_blank" rel="noopener noreferrer" class="app-link">Explore Vibrations <i
+                                class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="property-card">
                         <h4 class="result-title"><i class="fas fa-robot"></i> Machine Learning</h4>
                         <p>Eigenvectors are used in facial recognition, recommender systems, and clustering algorithms.
                         </p>
+                        <a href="https://en.wikipedia.org/wiki/Eigenface" target="_blank" rel="noopener noreferrer"
+                            class="app-link">Explore Eigenfaces <i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="property-card">
                         <h4 class="result-title"><i class="fas fa-atom"></i> Quantum Mechanics</h4>
                         <p>Observables are Hermitian operators whose eigenvalues represent measurement outcomes.</p>
+                        <a href="https://en.wikipedia.org/wiki/Observable" target="_blank" rel="noopener noreferrer"
+                            class="app-link">Explore Quantum Mechanics <i class="fas fa-external-link-alt"></i></a>
                     </div>
                     <div class="property-card">
                         <h4 class="result-title"><i class="fas fa-network-wired"></i> Network Analysis</h4>
                         <p>Eigenvalues of adjacency matrices reveal connectivity, centrality, and community structure.
                         </p>
+                        <a href="https://en.wikipedia.org/wiki/Spectral_graph_theory" target="_blank"
+                            rel="noopener noreferrer" class="app-link">Explore Spectral Graph Theory <i
+                                class="fas fa-external-link-alt"></i></a>
                     </div>
                 </div>
             </section>
-
             <!-- Feedback Section (original) -->
             <section id="feedback" class="content-section">
                 <h2 class="section-title"><i class="fas fa-comment-dots"></i> User Feedback</h2>
@@ -2438,13 +2488,6 @@
                 });
             });
 
-            questions.push({
-                id: 100,
-                text: `Step 4: Verification\nThe trace of the matrix is ${trace.toFixed(4)} and determinant is ${det.toFixed(4)}.\nWhat are the sum and product of the eigenvalues? (Enter as "sum, product")`,
-                hint: `Sum of eigenvalues = trace = ${trace.toFixed(4)}. Product of eigenvalues = determinant = ${det.toFixed(4)}.`,
-                correctAnswer: `${trace.toFixed(4)}, ${det.toFixed(4)}`,
-                compareNumbers: true
-            });
 
             return questions;
         }
@@ -2841,7 +2884,7 @@
                 { name: "Mr.Dinesh Kute", role: "Project Guide & Mentor", description: "Provided expert guidance, theoretical framework, and oversaw the pedagogical design of the virtual lab.", photo: "dineshsir.jpeg", isGuide: true },
                 { name: "Sureshkumar Choudhary", role: "Frontend Developer & Simulation Design", description: "Developed the interactive simulator, visualization tools, and user interface components.", photo: "suresh.jpeg", isGuide: false },
                 { name: "Utkarsh Mutha", role: "Algorithm Design & Mathematical Core", description: "Implemented the eigenvalue computation algorithms and mathematical verification systems.", photo: "utkarsh.jpeg", isGuide: false },
-                { name: "Ayush Pradhan", role: "UI/UX Design & Content Creation", description: "Designed the visual layout, animations, and created explanatory content with examples.", photo:"ayush.jpg", isGuide: false },
+                { name: "Ayush Pradhan", role: "UI/UX Design & Content Creation", description: "Designed the visual layout, animations, and created explanatory content with examples.", photo: "ayush.jpg", isGuide: false },
                 { name: "Gajanan Patil", role: "Backend Integration & Testing", description: "Ensured system reliability, integrated mathematical libraries, and performed extensive testing.", photo: "gajanan.jpeg", isGuide: false },
                 { name: "Amruta Biradar", role: "Quality Assurance & Documentation", description: "Verified all calculations, validated educational content, and prepared comprehensive documentation.", photo: "amruta.jpeg", isGuide: false }
             ];
